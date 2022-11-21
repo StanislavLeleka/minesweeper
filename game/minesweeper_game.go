@@ -80,22 +80,22 @@ func newGame(size int, blackHoles int) (*MinesweeperGame, error) {
 }
 
 // A function to place the black holes randomly on the game board.
-func (s *MinesweeperGame) populateBlackHoles() {
+func (mg *MinesweeperGame) populateBlackHoles() {
 	// Location of the black holes is empty by default
-	s.blackHoleCells = make([][]int, s.blackHoles)
-	// Marker to check where the black hole was placed on generated position.
+	mg.blackHoleCells = make([][]int, mg.blackHoles)
+	// Marker to check whether the black hole was placed on generated position.
 	// Prevents a black hole from being assigned to the position
 	// where one already exists.
-	placedBlackHoles := make([]bool, s.size*s.size)
+	placedBlackHoles := make([]bool, mg.size*mg.size)
 
 	source := rand.NewSource(time.Now().UnixNano())
 	rnd := rand.New(source)
 
 	// Continue until all the black holes have been created.
-	for i := 0; i < s.blackHoles; {
-		randomNum := rnd.Intn(s.size * s.size)
-		row := randomNum % s.size
-		col := randomNum / s.size
+	for i := 0; i < mg.blackHoles; {
+		randomNum := rnd.Intn(mg.size * mg.size)
+		row := randomNum % mg.size
+		col := randomNum / mg.size
 
 		// Add black holes if there are no black holes
 		// on the board at that location.
@@ -103,15 +103,15 @@ func (s *MinesweeperGame) populateBlackHoles() {
 			// Mark that black hole was placed on that position.
 			placedBlackHoles[randomNum] = true
 			// Place black hole on the board.
-			s.board[row][col].hasBlackHole = true
+			mg.board[row][col].hasBlackHole = true
 			// Add the black hole position to the collection of black hole locations.
-			s.blackHoleCells[i] = []int{row, col}
+			mg.blackHoleCells[i] = []int{row, col}
 
 			// Iterate through adjacent cells to the current black hole.
-			for _, nextCell := range s.getSurroundingCells(row, col) {
+			for _, nextCell := range mg.getSurroundingCells(row, col) {
 				// Increment the number of adjacent black holes
 				// for the adjacent cell with the current black hole.
-				s.board[nextCell[0]][nextCell[1]].adjacentBlackHoles++
+				mg.board[nextCell[0]][nextCell[1]].adjacentBlackHoles++
 			}
 
 			i++
@@ -188,29 +188,29 @@ func (mg *MinesweeperGame) openCell(row int, col int) {
 // 2 1 H H
 //
 // By default, the "debug" parameter should be false.
-func (s *MinesweeperGame) printBoard(debug bool) {
+func (mg *MinesweeperGame) printBoard(debug bool) {
 	fmt.Println()
 	fmt.Print("  ")
 
-	for i := 0; i < s.size; i++ {
+	for i := 0; i < mg.size; i++ {
 		fmt.Printf("%d ", i)
 	}
 
 	fmt.Println()
 
-	for i := 0; i < s.size; i++ {
+	for i := 0; i < mg.size; i++ {
 		fmt.Printf("%d ", i)
 
-		for j := 0; j < s.size; j++ {
+		for j := 0; j < mg.size; j++ {
 			if debug {
-				if s.board[i][j].hasBlackHole {
+				if mg.board[i][j].hasBlackHole {
 					fmt.Printf("%c ", 'H')
 				} else {
-					fmt.Printf("%d ", s.board[i][j].adjacentBlackHoles)
+					fmt.Printf("%d ", mg.board[i][j].adjacentBlackHoles)
 				}
 			} else {
-				if s.board[i][j].isOpen {
-					fmt.Printf("%d ", s.board[i][j].adjacentBlackHoles)
+				if mg.board[i][j].isOpen {
+					fmt.Printf("%d ", mg.board[i][j].adjacentBlackHoles)
 				} else {
 					fmt.Printf("* ")
 				}
@@ -224,15 +224,15 @@ func (s *MinesweeperGame) printBoard(debug bool) {
 }
 
 // A function to initialize a new game board.
-func (s *MinesweeperGame) initializeBoard() {
+func (mg *MinesweeperGame) initializeBoard() {
 	// Game board of is empty by default
-	s.board = make([][]*Cell, s.size)
+	mg.board = make([][]*Cell, mg.size)
 
 	// Assign all the cells as black hole free.
-	for i := 0; i < s.size; i++ {
-		s.board[i] = make([]*Cell, s.size)
-		for j := 0; j < s.size; j++ {
-			s.board[i][j] = &Cell{
+	for i := 0; i < mg.size; i++ {
+		mg.board[i] = make([]*Cell, mg.size)
+		for j := 0; j < mg.size; j++ {
+			mg.board[i][j] = &Cell{
 				isOpen:             false, // closed by default
 				hasBlackHole:       false, // black hole free
 				adjacentBlackHoles: 0,     // no adjacent black holes
@@ -252,19 +252,19 @@ func (s *MinesweeperGame) initializeBoard() {
 //               /  |  \
 //              /   |   \
 //     (r+1,c-1) (r+1,c) (r+1,c+1)
-func (s *MinesweeperGame) getSurroundingCells(row int, col int) [][]int {
+func (mg *MinesweeperGame) getSurroundingCells(row int, col int) [][]int {
 	surrounding := make([][]int, 0) // collection of surrounding cells
 	rows := []int{row - 1, row, row + 1}
 	cols := []int{col - 1, col, col + 1}
 
 	for _, nextRow := range rows {
 		// Only process a cell if it's valid.
-		if nextRow < 0 || nextRow >= s.size {
+		if nextRow < 0 || nextRow >= mg.size {
 			continue
 		}
 		for _, nextCol := range cols {
 			// Only process a cell if it's valid.
-			if nextCol < 0 || nextCol >= s.size {
+			if nextCol < 0 || nextCol >= mg.size {
 				continue
 			}
 			// Add a valid cell to the collection.
