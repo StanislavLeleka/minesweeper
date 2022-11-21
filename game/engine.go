@@ -69,7 +69,7 @@ func getGameSettings() (int, int) {
 	_, err = fmt.Scanln(&blackHoles)
 	// If input is invalid (not a number) panic is called.
 	if err != nil {
-		fmt.Println("Invalid input!")
+		panic("Invalid input!")
 	}
 
 	return size, blackHoles
