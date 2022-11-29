@@ -10,16 +10,8 @@ import (
 
 // A function to play the game.
 func Play() {
-	var size int       // holds board size
-	var blackHoles int // holds number of black holes
-	// Get board size and black hole count from user.
-	size, blackHoles, err := getGameSettings()
-	// Validate user input.
-	// If the entered values are invalid or there are errors during the input, start the input again.
-	for err != nil || !validateInput(size, blackHoles) {
-		fmt.Println("Game settings are invalid. Please try again.")
-		size, blackHoles, err = getGameSettings()
-	}
+	// Get the size of the game board and the number of black holes.
+	size, blackHoles := getGameSettings()
 	// Initialize the game.
 	game := newGame(size, blackHoles)
 	// Place the black holes randomly on the game board.
@@ -27,7 +19,7 @@ func Play() {
 
 	// User stays in the game until a black hole is found or the user wins.
 	// So we keep waiting for the game status to change.
-	for game.GameStatus == Playing {
+	for game.gameStatus == Playing {
 		fmt.Println("Current board:")
 		// Show the user the current game board.
 		game.printBoard(false)
@@ -36,10 +28,8 @@ func Play() {
 		row, col := makeMove()
 		// If the coordinates are valid, open the cell.
 		// If the coordinates are invalid, go back to entering new coordinates.
-		if (row >= 0 && row < size) && (col >= 0 && col < size) {
+		if positionIsValid(row, col, size) {
 			game.openCell(row, col)
-		} else {
-			continue
 		}
 	}
 
@@ -47,43 +37,41 @@ func Play() {
 	// Show the current game board to the user and reveal all the black holes.
 	game.printBoard(true)
 	// Notify the user whether the game is won or lost.
-	if game.GameStatus == Lost {
+	if game.gameStatus == Lost {
 		fmt.Println("You lost!")
-	} else if game.GameStatus == Won {
+	} else if game.gameStatus == Won {
 		fmt.Println("You win!")
 	}
 }
 
 // A function to get board size and black hole count from user.
-// Returns the entered board size and number of black holes or error if input is invalid.
-func getGameSettings() (int, int, error) {
+// Returns board size and number of black holes.
+func getGameSettings() (int, int) {
 	reader := bufio.NewReader(os.Stdin)
+	getUserInput := func(msg string, isValid func(int) bool) int {
+		for {
+			fmt.Print(msg)
+			// Read user input.
+			input, err := reader.ReadString('\n')
+			// If there is an error, start over.
+			if err != nil {
+				continue
+			}
+			val, err := strconv.Atoi(strings.TrimSpace(input)) // convert user input to int
+			// If there is an error, start over.
+			if err != nil || !isValid(val) {
+				continue
+			}
+			return val // return valid input
+		}
+	}
+	// Get board size.
+	size := getUserInput("Enter board size: ", isBoardSizeValid)
+	// Get the number of black holes.
+	blackHoles := getUserInput("Enter black holes count: ",
+		func(bc int) bool { return isBlackHolesCountValid(bc, size) })
 
-	fmt.Print("Enter board size: ")
-	// Read user input.
-	input, err := reader.ReadString('\n')
-	if err != nil {
-		return 0, 0, err
-	}
-	size, err := strconv.Atoi(strings.TrimSpace(input)) // get board size
-	// If input is invalid return error.
-	if err != nil {
-		return 0, 0, err
-	}
-
-	fmt.Print("Enter black holes count: ")
-	// Read user input.
-	input, err = reader.ReadString('\n')
-	if err != nil {
-		return 0, 0, err
-	}
-	blackHoles, err := strconv.Atoi(strings.TrimSpace(input)) // number of black holes
-	// If input is invalid return error.
-	if err != nil {
-		return 0, 0, err
-	}
-
-	return size, blackHoles, nil
+	return size, blackHoles
 }
 
 // A function to get the coordinates of the cell to open from the user.
@@ -106,18 +94,17 @@ func makeMove() (int, int) {
 	return row, col
 }
 
-// A function to validate board size and black holes count
-// Returns false if the input parameters are invalid.
-func validateInput(size int, blackHoles int) bool {
-	// Board size validation.
-	if size < 1 {
-		return false
-	}
+// A function to validate game board size.
+func isBoardSizeValid(size int) bool {
+	return size > 0
+}
 
-	// Number of black holes validation.
-	if blackHoles < 1 || blackHoles > size*size {
-		return false
-	}
+// A function to validate number of black holes.
+func isBlackHolesCountValid(blackHoles int, size int) bool {
+	return blackHoles > 1 && blackHoles < size*size
+}
 
-	return true
+// A function of validate the entered coordinates by the user.
+func positionIsValid(x int, y int, max int) bool {
+	return (x >= 0 && x < max) && (y >= 0 && y < max)
 }

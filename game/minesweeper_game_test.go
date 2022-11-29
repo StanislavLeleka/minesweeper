@@ -15,27 +15,33 @@ func TestInputValidation(t *testing.T) {
 	validationErrMsg := "input must be invalid"
 
 	// Invalid board size.
-	valid := validateInput(0, 0)
+	valid := isBoardSizeValid(0)
 	if valid {
 		t.Errorf(validationErrMsg)
 	}
 
 	// Invalid number of black holes.
 	// (must not be less than 1)
-	valid = validateInput(boardSize, 0)
+	valid = isBlackHolesCountValid(0, boardSize)
 	if valid {
 		t.Errorf(validationErrMsg)
 	}
 
 	// Invalid number of black holes.
 	// (must not be greater than size*size)
-	valid = validateInput(boardSize, (boardSize*boardSize)+1)
+	valid = isBlackHolesCountValid((boardSize*boardSize)+1, boardSize)
 	if valid {
 		t.Errorf(validationErrMsg)
 	}
 
-	// Valid input.
-	valid = validateInput(boardSize, blackHoles)
+	// Valid board size.
+	valid = isBoardSizeValid(boardSize)
+	if !valid {
+		t.Errorf("input validation failed")
+	}
+
+	// Valid number of black holes.
+	valid = isBlackHolesCountValid(blackHoles, boardSize)
 	if !valid {
 		t.Errorf("input validation failed")
 	}
@@ -132,8 +138,8 @@ func TestOpenCellWithBlackHole(t *testing.T) {
 	game.openCell(row, col)
 
 	// Verify that the game status is Lost now.
-	if game.GameStatus != Lost {
-		t.Errorf("got %d, wanted %d", game.GameStatus, Lost)
+	if game.gameStatus != Lost {
+		t.Errorf("got %d, wanted %d", game.gameStatus, Lost)
 	}
 
 	// Verify that all black holes are revealed.
@@ -158,8 +164,8 @@ func TestOpenAllCellsAndWin(t *testing.T) {
 	}
 
 	// Verify that the status of the game is Won after opening all the cells.
-	if game.GameStatus != Won {
-		t.Errorf("got %d, wanted %d", game.GameStatus, Won)
+	if game.gameStatus != Won {
+		t.Errorf("got %d, wanted %d", game.gameStatus, Won)
 	}
 }
 

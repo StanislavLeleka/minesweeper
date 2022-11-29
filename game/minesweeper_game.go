@@ -38,7 +38,7 @@ type MinesweeperGame struct {
 	board          [][]*Cell
 	blackHoleCells [][]int // location of black holes
 
-	GameStatus GameStatus // status of the game
+	gameStatus GameStatus // status of the game
 }
 
 // A Function to initialize the game.
@@ -52,7 +52,7 @@ func newGame(size int, blackHoles int) *MinesweeperGame {
 	game := &MinesweeperGame{
 		size:       size,
 		blackHoles: blackHoles,
-		GameStatus: Playing,
+		gameStatus: Playing,
 	}
 
 	// Calculates the number of moves to finish the game.
@@ -104,6 +104,11 @@ func (mg *MinesweeperGame) populateBlackHoles() {
 
 // A function to open a cell selected by the user on the game board.
 func (mg *MinesweeperGame) openCell(row int, col int) {
+	// Validate that the game is not over.
+	if mg.gameStatus != Playing {
+		return
+	}
+
 	// If a cell is already open, skip it.
 	if mg.board[row][col].isOpen {
 		return
@@ -114,7 +119,7 @@ func (mg *MinesweeperGame) openCell(row int, col int) {
 	if mg.board[row][col].hasBlackHole {
 		// Reveal all the black holes because user lost.
 		mg.revalAllBlackHoles()
-		mg.GameStatus = Lost // game status is lost
+		mg.gameStatus = Lost // game status is lost
 		return
 	}
 
@@ -155,7 +160,7 @@ func (mg *MinesweeperGame) openCell(row int, col int) {
 	// If the number of moves is zero,
 	// the game is considered over and user has won.
 	if mg.movesLeft == 0 {
-		mg.GameStatus = Won // game status is won
+		mg.gameStatus = Won // game status is won
 	}
 }
 
