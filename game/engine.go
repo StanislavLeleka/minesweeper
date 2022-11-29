@@ -48,9 +48,9 @@ func Play() {
 // Returns board size and number of black holes.
 func getGameSettings() (int, int) {
 	reader := bufio.NewReader(os.Stdin)
-	getUserInput := func(msg string, isValid func(int) bool) int {
+	getUserInput := func(name string, isValid func(int) bool) int {
 		for {
-			fmt.Print(msg)
+			fmt.Printf("Enter %s: ", name)
 			// Read user input.
 			input, err := reader.ReadString('\n')
 			// If there is an error, start over.
@@ -66,10 +66,11 @@ func getGameSettings() (int, int) {
 		}
 	}
 	// Get board size.
-	size := getUserInput("Enter board size: ", isBoardSizeValid)
+	size := getUserInput("board size", isBoardSizeValid)
 	// Get the number of black holes.
-	blackHoles := getUserInput("Enter black holes count: ",
-		func(bc int) bool { return isBlackHolesCountValid(bc, size) })
+	blackHoles := getUserInput("black holes count", func(bh int) bool {
+		return isBlackHolesCountValid(bh, size)
+	})
 
 	return size, blackHoles
 }
