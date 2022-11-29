@@ -52,6 +52,9 @@ func newGame(size int, blackHoles int) *MinesweeperGame {
 	game := &MinesweeperGame{
 		size:       size,
 		blackHoles: blackHoles,
+
+		blackHoleCells: make([][]int, 0), // no black holes by default
+
 		gameStatus: Playing,
 	}
 
@@ -64,7 +67,10 @@ func newGame(size int, blackHoles int) *MinesweeperGame {
 
 // A function to place the black holes randomly on the game board.
 func (mg *MinesweeperGame) populateBlackHoles() {
-	// Location of the black holes is empty by default
+	// Do not create new black holes if they have been created before.
+	if len(mg.blackHoleCells) > 0 {
+		return
+	}
 	mg.blackHoleCells = make([][]int, mg.blackHoles)
 	// Marker to check whether the black hole was placed on generated position.
 	// Prevents a black hole from being assigned to the position
