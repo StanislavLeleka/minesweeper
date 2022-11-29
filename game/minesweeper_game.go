@@ -1,7 +1,6 @@
 package game
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -21,11 +20,6 @@ const (
 	Playing GameStatus = iota // game in progress
 	Won                       // player won the game
 	Lost                      // player lost the game
-)
-
-const (
-	invalidBoardMsg      = "invalid board size"
-	invalidBlackHolesMsg = "invalid number of black holes"
 )
 
 // A MinesweeperGame is a struct that represents the entire game
@@ -52,7 +46,7 @@ type MinesweeperGame struct {
 // and number of black holes.
 // Returns a game object or an error if the board size is invalid (< 1)
 // or the number of black holes is too large (> board size * board size) or too small (< 1)
-func newGame(size int, blackHoles int) (*MinesweeperGame, error) {
+func newGame(size int, blackHoles int) *MinesweeperGame {
 	// Initialization of the game object.
 	// Default game status is Playing.
 	game := &MinesweeperGame{
@@ -61,22 +55,11 @@ func newGame(size int, blackHoles int) (*MinesweeperGame, error) {
 		GameStatus: Playing,
 	}
 
-	// Board size validation.
-	// Returns an error if the size is invalid.
-	if size < 1 {
-		return nil, errors.New(invalidBoardMsg)
-	}
-	// Number of black holes validation.
-	// Returns an error if the number of black holes is invalid.
-	if blackHoles < 1 || blackHoles > size*size {
-		return nil, errors.New(invalidBlackHolesMsg)
-	}
-
 	// Calculates the number of moves to finish the game.
 	game.movesLeft = size*size - blackHoles
 	game.initializeBoard() // initialization of a new game board
 
-	return game, nil
+	return game
 }
 
 // A function to place the black holes randomly on the game board.
@@ -121,6 +104,11 @@ func (mg *MinesweeperGame) populateBlackHoles() {
 
 // A function to open a cell selected by the user on the game board.
 func (mg *MinesweeperGame) openCell(row int, col int) {
+	// If a cell is already open, skip it.
+	if mg.board[row][col].isOpen {
+		return
+	}
+
 	// User has opened a black hole.
 	// Game over and user lost.
 	if mg.board[row][col].hasBlackHole {

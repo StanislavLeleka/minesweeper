@@ -10,42 +10,41 @@ const (
 	blackHoles = 8
 )
 
+// A test to validate user input data.
+func TestInputValidation(t *testing.T) {
+	validationErrMsg := "input must be invalid"
+
+	// Invalid board size.
+	valid := validateInput(0, 0)
+	if valid {
+		t.Errorf(validationErrMsg)
+	}
+
+	// Invalid number of black holes.
+	// (must not be less than 1)
+	valid = validateInput(boardSize, 0)
+	if valid {
+		t.Errorf(validationErrMsg)
+	}
+
+	// Invalid number of black holes.
+	// (must not be greater than size*size)
+	valid = validateInput(boardSize, (boardSize*boardSize)+1)
+	if valid {
+		t.Errorf(validationErrMsg)
+	}
+
+	// Valid input.
+	valid = validateInput(boardSize, blackHoles)
+	if !valid {
+		t.Errorf("input validation failed")
+	}
+}
+
 // Tests the process of initializing a new game.
 func TestGameInitialization(t *testing.T) {
-	validationErrMsg := "must return validation error"
-
-	// Try to initialize with the invalid board size.
-	_, err := newGame(0, 0)
-	if err == nil {
-		t.Errorf(validationErrMsg)
-	}
-	if err.Error() != invalidBoardMsg {
-		t.Errorf("got %s, wanted %s", err.Error(), invalidBoardMsg)
-	}
-
-	// Try to initialize with the invalid number of black holes.
-	// (must not be less than 1)
-	_, err = newGame(boardSize, 0)
-	if err == nil {
-		t.Errorf(validationErrMsg)
-	}
-	if err.Error() != invalidBlackHolesMsg {
-		t.Errorf("got %s, wanted %s", err.Error(), invalidBlackHolesMsg)
-	}
-	// (must not be greater than size*size)
-	_, err = newGame(boardSize, (boardSize*boardSize)+1)
-	if err == nil {
-		t.Errorf(validationErrMsg)
-	}
-	if err.Error() != invalidBlackHolesMsg {
-		t.Errorf("got %s, wanted %s", err.Error(), invalidBlackHolesMsg)
-	}
-
-	// Successful initialization of the game.
-	game, err := newGame(boardSize, blackHoles)
-	if err != nil {
-		t.Errorf("error during game initialization: %q", err.Error())
-	}
+	// Initialize the game.
+	game := newGame(boardSize, blackHoles)
 
 	// Check that the number of movesLeft to finish the game is correct.
 	movesLeft := boardSize*boardSize - blackHoles
@@ -69,7 +68,7 @@ func TestGameInitialization(t *testing.T) {
 // Tests that black holes have been placed on the game board.
 func TestBlackHolesGeneration(t *testing.T) {
 	// Initialize a valid game.
-	game, _ := newGame(boardSize, blackHoles)
+	game := newGame(boardSize, blackHoles)
 
 	//Make sure the list of black holes is empty by default.
 	if len(game.blackHoleCells) > 0 {
@@ -101,7 +100,7 @@ func TestBlackHolesGeneration(t *testing.T) {
 // Tests cell opening.
 func TestOpenCell(t *testing.T) {
 	// Initialize a valid game.
-	game, _ := newGame(boardSize, blackHoles)
+	game := newGame(boardSize, blackHoles)
 	// Populate black holes.
 	game.populateBlackHoles()
 
@@ -124,7 +123,7 @@ func TestOpenCell(t *testing.T) {
 // Tests opening the cell with the black hole.
 func TestOpenCellWithBlackHole(t *testing.T) {
 	// Initialize a valid game.
-	game, _ := newGame(boardSize, blackHoles)
+	game := newGame(boardSize, blackHoles)
 	// Populate black holes.
 	game.populateBlackHoles()
 
@@ -148,7 +147,7 @@ func TestOpenCellWithBlackHole(t *testing.T) {
 // Test that after opening all cells without black holes, the game is considered won.
 func TestOpenAllCellsAndWin(t *testing.T) {
 	// Initialize a valid game.
-	game, _ := newGame(boardSize, blackHoles)
+	game := newGame(boardSize, blackHoles)
 	// Populate black holes.
 	game.populateBlackHoles()
 
@@ -167,7 +166,7 @@ func TestOpenAllCellsAndWin(t *testing.T) {
 // Tests that all adjacent cells have been obtained.
 func TestGetSurroundingCells(t *testing.T) {
 	// Initialize a valid game.
-	game, _ := newGame(boardSize, blackHoles)
+	game := newGame(boardSize, blackHoles)
 	// Coordinates of the cell to check.
 	row, col := 2, 3
 	// Get all 8 adjacent cells.
